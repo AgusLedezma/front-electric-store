@@ -1,35 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter } from 'react-router-dom'
+import UserRoutes from './modules/users/infrastructure/router/UserRoutes'
+import { UserProvider } from './modules/users/infrastructure/context/UserContext'
+import { GlobalSearchProvider } from './core/ui/context/GlobalSearchContext'
+import AppLayout from './core/ui/components/AppLayout'
+// Side-effect registration of modules (menu, search, etc.)
+import './modules/users'
+import './modules/users/infrastructure/styles/global.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+      <GlobalSearchProvider>
+        <UserProvider>
+          <AppLayout>
+            <UserRoutes />
+          </AppLayout>
+        </UserProvider>
+      </GlobalSearchProvider>
+    </BrowserRouter>
   )
 }
-
-export default App

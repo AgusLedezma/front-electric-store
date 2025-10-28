@@ -1,16 +1,83 @@
-# React + Vite
+# SICME ELECTRIK – Módulo de Usuarios (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto contiene el módulo de usuarios del sistema SICME ELECTRIK desarrollado con React + Vite y Tailwind CSS, siguiendo una adaptación de arquitectura hexagonal (Ports & Adapters).
 
-Currently, two official plugins are available:
+## Estructura
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+src/
+	domain/
+		user.js
+	application/
+		user/
+			createUser.js
+			updateUser.js
+			deleteUser.js
+			getAllUsers.js
+	adapters/
+		api/
+			userService.js
+	infrastructure/
+		context/
+			UserContext.jsx
+		router/
+			UserRoutes.jsx
+		styles/
+			global.css
+	presentation/
+		components/
+			Modal.jsx
+			UserForm.jsx
+			UserTable.jsx
+		pages/
+			UsersPage.jsx
+```
 
-## React Compiler
+## Mock vs Backend real
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+El archivo `src/adapters/api/userService.js` usa por defecto un mock en `localStorage` para que puedas probar el CRUD sin backend. Cuando tengas backend:
 
-## Expanding the ESLint configuration
+- Crea un archivo `.env` en la raíz a partir de `.env.example`.
+- Cambia `VITE_USE_MOCK=false`.
+- Ajusta `VITE_API_URL` apuntando a tu servidor.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Endpoints esperados por el backend:
+
+- GET    `${VITE_API_URL}/api/users`
+- POST   `${VITE_API_URL}/api/users`         body: { ci, name, email, role, password }
+- PUT    `${VITE_API_URL}/api/users/:id`     body: { ci, name, email, role }
+- DELETE `${VITE_API_URL}/api/users/:id`
+
+Notas de CORS: habilita CORS en tu servidor Express.
+
+## Estilos
+
+Tailwind CSS v4 está configurado vía PostCSS (`@tailwindcss/postcss`). Tipografías: Inter y Poppins. Colores de marca usados: azul `#004aad` y naranja `#ff6b35`.
+
+## Cómo ejecutar
+
+Requisitos recomendados: Node.js 20.19+ o 22.12+.
+
+```powershell
+# Instalar dependencias
+npm install
+
+# Desarrollo
+npm run dev
+
+# Build de producción
+npm run build
+
+# Vista previa del build
+npm run preview
+```
+
+## Funcionalidades
+
+- Listado de usuarios con búsqueda y paginación básica.
+- Crear, editar y eliminar con modales.
+- Validaciones básicas en formulario.
+
+## Créditos
+
+Hecho con ❤️ usando React, Vite y Tailwind.
