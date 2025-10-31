@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
+import { useToast } from '../../../../core/ui/context/ToastContext'
 import { useUsers } from '../../infrastructure/context/useUsers'
 import Modal from '../components/Modal'
 import UserForm from '../components/UserForm'
@@ -7,7 +8,6 @@ import UserTable from '../components/UserTable'
 
 export default function UsersPage() {
   const { users, loading, error, createUser, updateUser, deleteUser } = useUsers()
-  const [openCreate, setOpenCreate] = useState(false)
   const location = useLocation()
   const initialQuery = useMemo(() => {
     const p = new URLSearchParams(location.search)
@@ -16,21 +16,24 @@ export default function UsersPage() {
   const [openEdit, setOpenEdit] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
   const [selected, setSelected] = useState(null)
+  const { show: showToast } = useToast()
 
   function onEdit(user) { setSelected(user); setOpenEdit(true) }
   function onDelete(user) { setSelected(user); setOpenDelete(true) }
 
-  async function handleCreate(payload) {
-    const ok = await createUser(payload)
-    if (ok) setOpenCreate(false)
-  }
+  // Creation is handled via the Register page; the local create modal was removed.
 
   async function handleEdit(payload) {
     const id = selected?.id_user || selected?.id
     // Close modal immediately for better UX
     setOpenEdit(false)
     try {
-      await updateUser(id, payload)
+      const ok = await updateUser(id, payload)
+      if (ok) {
+        showToast({ type: 'success', title: 'Cambios guardados', message: `Se actualizó a ${payload.name} ${payload.last_name}.` })
+      } else {
+        showToast({ type: 'error', title: 'No se pudo actualizar', message: 'Revisa los datos e intenta nuevamente.' })
+      }
     } finally {
       setSelected(null)
     }
@@ -41,7 +44,12 @@ export default function UsersPage() {
     // Close modal immediately and delete in background
     setOpenDelete(false)
     try {
-      await deleteUser(id)
+      const ok = await deleteUser(id)
+      if (ok) {
+        showToast({ type: 'success', title: 'Usuario eliminado', message: `El usuario fue eliminado correctamente.` })
+      } else {
+        showToast({ type: 'error', title: 'No se pudo eliminar', message: 'Intenta nuevamente en unos segundos.' })
+      }
     } finally {
       setSelected(null)
     }
@@ -54,13 +62,11 @@ export default function UsersPage() {
           <h1 className="text-2xl font-bold text-[#004aad]">SICME ELECTRIK · Usuarios</h1>
           <p className="text-sm text-gray-600">Gestión y administración de usuarios del sistema</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setSelected(null); setOpenCreate(true) }}>+ Nuevo Usuario</button>
+        <Link className="btn btn-primary" to="/register" onClick={() => setSelected(null)}>+ Nuevo Usuario</Link>
       </header>
 
       {error && (
-        <div className="card border-l-4 border-red-500 p-4">
-          <p className="text-red-700">{error}</p>
-        </div>
+          <Alert type="error" title="No se pudo cargar la lista">{error}</Alert>
       )}
 
       {loading ? (
@@ -69,9 +75,7 @@ export default function UsersPage() {
         <UserTable users={users} onEdit={onEdit} onDelete={onDelete} initialQuery={initialQuery} />
       )}
 
-      <Modal open={openCreate} onClose={() => setOpenCreate(false)} title="Crear usuario">
-        <UserForm mode="create" onCancel={() => setOpenCreate(false)} onSubmit={handleCreate} />
-      </Modal>
+      {/* El formulario de creación local fue removido. Usar /register para crear nuevos usuarios */}
 
       <Modal open={openEdit} onClose={() => { setOpenEdit(false); setSelected(null) }} title="Editar usuario">
         {selected && (

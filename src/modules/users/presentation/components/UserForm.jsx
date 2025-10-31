@@ -32,6 +32,7 @@ export default function UserForm({ mode = 'create', initialData = null, onSubmit
     const e = {}
     if (!ci.trim()) e.ci = 'El CI es obligatorio'
     if (!name.trim()) e.name = 'El nombre es obligatorio'
+    if (!lastName.trim()) e.lastName = 'El apellido es obligatorio'
     // email is derived from CI; validate format but don't require manual edit
     if (!email.trim()) e.email = 'El correo es obligatorio'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Correo inválido'
@@ -54,31 +55,39 @@ export default function UserForm({ mode = 'create', initialData = null, onSubmit
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="label" htmlFor="ci">Carnet de Identidad (CI)</label>
-        <input id="ci" className="input" value={ci} onChange={e => setCi(e.target.value)} />
+        <input id="ci" className={`input ${touched && errors.ci ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={ci} onChange={e => setCi(e.target.value)} />
+        <p className="text-xs text-gray-500 mt-1">El correo se generará como {ci || 'ci'}@nullmail.com automáticamente.</p>
         {touched && errors.ci && <p className="text-sm text-red-600 mt-1">{errors.ci}</p>}
       </div>
 
       <div>
-        <label className="label" htmlFor="name">Nombre Completo</label>
-        <input id="name" className="input" value={name} onChange={e => setName(e.target.value)} />
+        <label className="label" htmlFor="name">Nombre</label>
+        <input id="name" className={`input ${touched && errors.name ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={name} onChange={e => setName(e.target.value)} />
         {touched && errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
       </div>
 
       <div>
+        <label className="label" htmlFor="lastName">Apellido</label>
+        <input id="lastName" className={`input ${touched && errors.lastName ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={lastName} onChange={e => setLastName(e.target.value)} />
+        {touched && errors.lastName && <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>}
+      </div>
+
+      <div>
         <label className="label" htmlFor="branch">Sucursal</label>
-        <input id="branch" className="input" value={branch} onChange={e => setBranch(e.target.value)} />
+        <input id="branch" className={`input ${touched && errors.branch ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={branch} onChange={e => setBranch(e.target.value)} />
         {touched && errors.branch && <p className="text-sm text-red-600 mt-1">{errors.branch}</p>}
       </div>
 
       <div>
         <label className="label" htmlFor="email">Correo (derivado de CI)</label>
         <input id="email" type="email" className="input" value={email} onChange={e => setEmail(e.target.value)} disabled />
+        <p className="text-xs text-gray-500 mt-1">No editable: se deriva del CI.</p>
         {touched && errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
       </div>
 
       <div>
         <label className="label" htmlFor="rol">Rol</label>
-        <select id="rol" className="input" value={rol} onChange={e => setRol(e.target.value)}>
+        <select id="rol" className={`input ${touched && errors.role ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={rol} onChange={e => setRol(e.target.value)}>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
         {touched && errors.role && <p className="text-sm text-red-600 mt-1">{errors.role}</p>}

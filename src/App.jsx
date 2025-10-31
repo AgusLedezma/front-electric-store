@@ -4,6 +4,7 @@ import { UserProvider } from './modules/users/infrastructure/context/UserContext
 import { GlobalSearchProvider } from './core/ui/context/GlobalSearchContext'
 import AppLayout from './core/ui/components/AppLayout'
 import { AuthProvider } from './core/ui/context/AuthContext'
+import { ToastProvider } from './core/ui/context/ToastContext'
 // Side-effect registration of modules (menu, search, etc.)
 import './modules/users'
 import './modules/users/infrastructure/styles/global.css'
@@ -13,9 +14,11 @@ export default function App() {
     <BrowserRouter>
       <GlobalSearchProvider>
         <AuthProvider>
-          <UserProvider>
-            <UserRoutes />
-          </UserProvider>
+          <ToastProvider>
+            <UserProvider>
+              <UserRoutes />
+            </UserProvider>
+          </ToastProvider>
         </AuthProvider>
       </GlobalSearchProvider>
     </BrowserRouter>

@@ -22,7 +22,9 @@ export function UserProvider({ children }) {
       const data = await getAllUsers()
       setUsers(data)
     } catch (err) {
-      setError(err?.message || 'Error cargando usuarios')
+      let msg = err?.message || 'Error cargando usuarios'
+      try { const parsed = JSON.parse(msg); msg = parsed.error || parsed.message || msg } catch {}
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -45,7 +47,9 @@ export function UserProvider({ children }) {
       await load()
       return true
     } catch (err) {
-      setError(err?.message || 'Error creando usuario')
+      let msg = err?.message || 'Error creando usuario'
+      try { const parsed = JSON.parse(msg); msg = parsed.error || parsed.message || msg } catch {}
+      setError(msg)
       return false
     } finally { setLoading(false) }
   }, [])
@@ -58,7 +62,9 @@ export function UserProvider({ children }) {
       await load()
       return true
     } catch (err) {
-      setError(err?.message || 'Error actualizando usuario')
+      let msg = err?.message || 'Error actualizando usuario'
+      try { const parsed = JSON.parse(msg); msg = parsed.error || parsed.message || msg } catch {}
+      setError(msg)
       return false
     } finally { setLoading(false) }
   }, [])
@@ -71,7 +77,9 @@ export function UserProvider({ children }) {
       await load()
       return true
     } catch (err) {
-      setError(err?.message || 'Error eliminando usuario')
+      let msg = err?.message || 'Error eliminando usuario'
+      try { const parsed = JSON.parse(msg); msg = parsed.error || parsed.message || msg } catch {}
+      setError(msg)
       return false
     } finally { setLoading(false) }
   }, [])

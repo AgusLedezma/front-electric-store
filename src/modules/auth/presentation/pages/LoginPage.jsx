@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../../../core/ui/context/AuthContext'
+import { useToast } from '../../../../core/ui/context/ToastContext'
 import { useNavigate } from 'react-router-dom'
 
 export default function LoginPage() {
@@ -7,23 +8,62 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [emailError, setEmailError] = useState(null)
+  const [passwordError, setPasswordError] = useState(null)
   const auth = useAuth()
   const navigate = useNavigate()
+  const { show: showToast } = useToast()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    try {
-      // AuthContext.login accepts email (preferred) or ci. Instruct user to use 0001@nullmail.com
-      // enforce client-side that user provided an email with our domain
-      if (!String(ci).endsWith('@nullmail.com')) {
-        throw new Error("Ingresa el correo con formato CI@nullmail.com")
+        try {
+      setEmailError(null)
+      setPasswordError(null)
+      // basic client-side validation
+      const email = String(ci || '').trim()
+      const pwd = String(password || '')
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!email) {
+        setEmailError('El correo es obligatorio')
+        setLoading(false)
+        return
       }
-      await auth.login(ci, password)
+      if (!emailRegex.test(email) || !email.toLowerCase().endsWith('@nullmail.com')) {
+        setEmailError('Usa el formato CI@nullmail.com (ej. 0001@nullmail.com)')
+        setLoading(false)
+        return
+      }
+      if (!pwd) {
+        setPasswordError('La contraseña es obligatoria')
+        setLoading(false)
+        return
+      }
+
+      await auth.login(email, pwd)
+      showToast({ type: 'success', title: 'Sesión iniciada', message: 'Bienvenido al panel de usuarios.' })
       navigate('/usuarios')
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión')
+      // Normalize errors safely
+      let msg = 'Credenciales inválidas o cuenta inexistente'
+      try {
+        if (typeof err === 'string') msg = err
+        else if (err && err.message) msg = err.message
+        // try parse JSON bodies (sometimes backend returns JSON string)
+        try {
+          const parsed = JSON.parse(msg)
+          msg = parsed.error || parsed.message || msg
+        } catch {}
+      } catch (e) {
+        // fallback
+      }
+      const lower = String(msg).toLowerCase()
+      if (lower.includes('invalid login credentials') || lower.includes('invalid credentials') || lower.includes('unauthorized')) {
+        msg = 'Credenciales inválidas. Verifica tu correo (CI@nullmail.com) y contraseña.'
+      }
+      setError(msg)
+      showToast({ type: 'error', title: 'No se pudo iniciar sesión', message: msg })
     } finally { setLoading(false) }
   }
 
@@ -33,15 +73,17 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-sm text-gray-700">Correo (usar formato CI@nullmail.com)</label>
-          <input className="w-full border p-2 rounded" placeholder="0001@nullmail.com" value={ci} onChange={e => setCi(e.target.value)} required />
+          <input className={`w-full border p-2 rounded ${emailError ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} placeholder="0001@nullmail.com" value={ci} onChange={e => { setCi(e.target.value); setEmailError(null); setError(null) }} required />
+          {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
         </div>
         <div>
           <label className="block text-sm text-gray-700">Contraseña</label>
-          <input type="password" className="w-full border p-2 rounded" value={password} onChange={e => setPassword(e.target.value)} required />
+          <input type="password" className={`w-full border p-2 rounded ${passwordError ? 'border-red-500 ring-2 ring-red-500/30' : ''}`} value={password} onChange={e => { setPassword(e.target.value); setPasswordError(null); setError(null) }} required />
+          {passwordError && <p className="text-sm text-red-600 mt-1">{passwordError}</p>}
         </div>
-        {error && <div className="text-red-600">{error}</div>}
+        {error && <Alert type="error" title="Error de autenticación">{error}</Alert>}
         <div>
-          <button className="w-full bg-[#004aad] text-white p-2 rounded" disabled={loading}>
+          <button className="w-full bg-[#004aad] text-white p-2 rounded disabled:opacity-60" disabled={loading}>
             {loading ? 'Conectando...' : 'Entrar'}
           </button>
         </div>

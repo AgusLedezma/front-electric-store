@@ -76,7 +76,7 @@ export default function UserTable({ users, onEdit, onDelete, initialQuery = '' }
             ))}
             {current.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-gray-500">Sin resultados</td>
+                <td colSpan={7} className="text-center py-10 text-gray-500">Sin resultados</td>
               </tr>
             )}
           </tbody>
