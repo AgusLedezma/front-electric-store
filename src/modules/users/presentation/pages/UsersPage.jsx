@@ -17,8 +17,8 @@ export default function UsersPage() {
   const [openDelete, setOpenDelete] = useState(false)
   const [selected, setSelected] = useState(null)
 
-  function onEdit(u) { setSelected(u); setOpenEdit(true) }
-  function onDelete(u) { setSelected(u); setOpenDelete(true) }
+  function onEdit(user) { setSelected(user); setOpenEdit(true) }
+  function onDelete(user) { setSelected(user); setOpenDelete(true) }
 
   async function handleCreate(payload) {
     const ok = await createUser(payload)
@@ -26,13 +26,25 @@ export default function UsersPage() {
   }
 
   async function handleEdit(payload) {
-    const ok = await updateUser(selected.id, payload)
-    if (ok) setOpenEdit(false)
+    const id = selected?.id_user || selected?.id
+    // Close modal immediately for better UX
+    setOpenEdit(false)
+    try {
+      await updateUser(id, payload)
+    } finally {
+      setSelected(null)
+    }
   }
 
   async function handleDelete() {
-    const ok = await deleteUser(selected.id)
-    if (ok) setOpenDelete(false)
+    const id = selected?.id_user || selected?.id
+    // Close modal immediately and delete in background
+    setOpenDelete(false)
+    try {
+      await deleteUser(id)
+    } finally {
+      setSelected(null)
+    }
   }
 
   return (
@@ -42,7 +54,7 @@ export default function UsersPage() {
           <h1 className="text-2xl font-bold text-[#004aad]">SICME ELECTRIK · Usuarios</h1>
           <p className="text-sm text-gray-600">Gestión y administración de usuarios del sistema</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setOpenCreate(true)}>+ Nuevo Usuario</button>
+        <button className="btn btn-primary" onClick={() => { setSelected(null); setOpenCreate(true) }}>+ Nuevo Usuario</button>
       </header>
 
       {error && (
@@ -61,18 +73,18 @@ export default function UsersPage() {
         <UserForm mode="create" onCancel={() => setOpenCreate(false)} onSubmit={handleCreate} />
       </Modal>
 
-      <Modal open={openEdit} onClose={() => setOpenEdit(false)} title="Editar usuario">
+      <Modal open={openEdit} onClose={() => { setOpenEdit(false); setSelected(null) }} title="Editar usuario">
         {selected && (
-          <UserForm mode="edit" initialData={selected} onCancel={() => setOpenEdit(false)} onSubmit={handleEdit} />
+          <UserForm mode="edit" initialData={selected} onCancel={() => { setOpenEdit(false); setSelected(null) }} onSubmit={handleEdit} />
         )}
       </Modal>
 
-      <Modal open={openDelete} onClose={() => setOpenDelete(false)} title="Eliminar usuario">
+      <Modal open={openDelete} onClose={() => { setOpenDelete(false); setSelected(null) }} title="Eliminar usuario">
         {selected && (
           <div className="space-y-4">
             <p>¿Seguro que deseas eliminar al usuario <strong>{selected.name}</strong>?</p>
             <div className="flex justify-end gap-2">
-              <button className="btn btn-secondary" onClick={() => setOpenDelete(false)}>Cancelar</button>
+              <button className="btn btn-secondary" onClick={() => { setOpenDelete(false); setSelected(null) }}>Cancelar</button>
               <button className="btn btn-danger" onClick={handleDelete}>Eliminar</button>
             </div>
           </div>

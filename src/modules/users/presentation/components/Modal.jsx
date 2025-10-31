@@ -25,7 +25,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose?.() }}
         onClick={onClose}
       />
-      <div className={`relative w-full ${sizeClass} card`}>
+      <div className={`relative w-full ${sizeClass} card bg-white max-h-[90vh] overflow-auto`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b px-5 py-3">
           <h3 className="text-lg font-semibold">{title}</h3>
           <button className="btn btn-secondary !px-2 !py-1" onClick={onClose} aria-label="Cerrar">✕</button>

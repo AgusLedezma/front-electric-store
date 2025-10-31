@@ -2,6 +2,12 @@
 
 Este proyecto contiene el módulo de usuarios del sistema SICME ELECTRIK desarrollado con React + Vite y Tailwind CSS, siguiendo una adaptación de arquitectura hexagonal (Ports & Adapters).
 
+## Arquitectura
+
+Este frontend aplica principios de arquitectura hexagonal a nivel de módulos (separación por dominio, casos de uso, adaptadores, infraestructura y presentación). Consulta la guía completa y la justificación del estilo de estructuración interna y del despliegue basado en servicios en:
+
+- docs/ARQUITECTURA.md
+
 ## Estructura
 
 ```

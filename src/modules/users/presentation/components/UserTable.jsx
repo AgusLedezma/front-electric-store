@@ -15,9 +15,9 @@ export default function UserTable({ users, onEdit, onDelete, initialQuery = '' }
     const q = query.trim().toLowerCase()
     const data = q
       ? users.filter(u =>
-          u.name.toLowerCase().includes(q) ||
-          u.email.toLowerCase().includes(q) ||
-          u.ci.toLowerCase().includes(q)
+          (u.name || '').toLowerCase().includes(q) ||
+          (u.branch || u.sucursal || '').toLowerCase().includes(q) ||
+          ((u.ci || '') + '').toLowerCase().includes(q)
         )
       : users
     setPage(1)
@@ -48,22 +48,24 @@ export default function UserTable({ users, onEdit, onDelete, initialQuery = '' }
               <th>CI</th>
               <th>Nombre</th>
               <th>Rol</th>
+              <th>Sucursal</th>
               <th>Correo</th>
               <th className="text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {current.map(u => (
-              <tr key={u.id} className="hover:bg-gray-50">
-                <td>{u.id}</td>
+              <tr key={u.id || u.id_user} className="hover:bg-gray-50">
+                <td>{u.id ?? '-'}</td>
                 <td>{u.ci}</td>
-                <td className="font-medium">{u.name}</td>
+                <td className="font-medium">{u.name} {u.last_name || ''}</td>
                 <td>
                   <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
-                    {u.role}
+                    {u.rol || u.role}
                   </span>
                 </td>
-                <td>{u.email}</td>
+                <td>{u.branch ?? u.sucursal}</td>
+                <td>{(u.ci ? `${u.ci}@nullmail.com` : u.email) || '-'}</td>
                 <td>
                   <div className="flex justify-end gap-2">
                     <button className="btn btn-secondary" onClick={() => onEdit?.(u)}>Editar</button>
@@ -99,6 +101,7 @@ UserTable.propTypes = {
     ci: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     role: PropTypes.string.isRequired,
+    sucursal: PropTypes.string.isRequired,
     email: PropTypes.string.isRequired,
   })).isRequired,
   onEdit: PropTypes.func,

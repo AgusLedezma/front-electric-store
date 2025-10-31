@@ -7,6 +7,7 @@
  * @property {string} ci
  * @property {string} name
  * @property {"Administrador"|"Prevendedor"|"Transportista"} role
+ * @property {string} sucursal
  * @property {string} email
  */
 
@@ -16,6 +17,7 @@ export function makeUser(data = {}) {
     ci: data.ci ?? "",
     name: data.name ?? "",
     role: data.role ?? "Prevendedor",
+    sucursal: data.sucursal ?? "",
     email: data.email ?? "",
   }
 }
